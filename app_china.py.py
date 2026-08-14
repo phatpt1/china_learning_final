@@ -558,7 +558,7 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm":
 # -----------------------------------------------------------------------------
 elif menu == "🤖 Chat Với Gia Sư AI":
     st.header("🤖 Trò Chuyện Trực Tiếp Cùng Gia Sư AI")
-    st.markdown("Gia sư AI.")
+
 
     if "chat_msgs" not in st.session_state:
         st.session_state.chat_msgs = [{"role": "assistant", "content": "你好 (Nǐ hǎo)! Gia sư AI của Ehou sẵn sàng hỗ trợ bạn. Bạn muốn hỏi cách nhớ chữ Hán, hay quy tắc ngữ pháp nào?"}]
