@@ -1,12 +1,11 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import time
 
 # Khởi tạo thư viện Groq
 try:
     from groq import Groq
 except ImportError:
-    st.error("Vui lòng cài đặt thư viện 'groq' bằng lệnh: pip install groq (Nếu dùng Streamlit Cloud, hãy chắc chắn file requirements.txt có chứa 'groq')")
+    Groq = None
 
 # -----------------------------------------------------------------------------
 # CONFIGURATION & STREAMLIT PAGE SETUP
@@ -47,20 +46,6 @@ st.markdown("""
         margin: 0;
     }
 
-    .ai-btn-container { margin-top: 8px; margin-bottom: 8px; }
-    
-    .stButton>button[kind="secondary"] {
-        border-color: #8b5cf6 !important;
-        color: #7c3aed !important;
-        background-color: #f5f3ff !important;
-        font-weight: 700;
-    }
-    .stButton>button[kind="secondary"]:hover {
-        background-color: #ede9fe !important;
-        border-color: #7c3aed !important;
-        box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
-    }
-
     @media (max-width: 640px) {
         .block-container { padding-top: 1rem !important; padding-bottom: 2rem !important; padding-left: 0.8rem !important; padding-right: 0.8rem !important; }
         .main-header { padding: 1rem; border-radius: 12px; }
@@ -68,48 +53,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-# -----------------------------------------------------------------------------
-# GROQ REAL AI INTEGRATION
-# -----------------------------------------------------------------------------
-GROQ_API_KEY = "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"
-
-def get_ai_explanation(query_type, context):
-    """
-    Sử dụng SDK chính chủ của Groq để gọi AI.
-    Đã cập nhật model lên phiên bản mới nhất llama-3.3-70b-versatile
-    """
-    try:
-        client = Groq(api_key=GROQ_API_KEY)
-    except Exception as e:
-        return f"🤖 Lỗi hệ thống khi tải thư viện Groq: {str(e)}"
-
-    # Prompt Engineering
-    system_prompt = "Bạn là một giáo viên dạy Tiếng Trung Quốc vui tính, nhiệt tình. Hãy trả lời học viên bằng tiếng Việt một cách ngắn gọn, dễ hiểu và truyền cảm hứng."
-    
-    if query_type == "char_mnemonic":
-        prompt = f"Học viên đang tập viết chữ Hán '{context}'. Hãy phân tích các bộ thủ cấu tạo nên chữ này và sáng tạo một câu chuyện/mẹo ngắn gọn, hài hước để học viên dễ nhớ cách viết."
-    elif query_type == "grammar_theory":
-        prompt = f"Học viên đang ôn tập. Hãy tóm tắt ngắn gọn và cho một ví dụ dễ hiểu nhất về điểm kiến thức/ngữ pháp này trong Tiếng Trung: '{context}'."
-    elif query_type == "general_chat":
-        prompt = context
-    else:
-        prompt = context
-
-    try:
-        # Sử dụng mô hình Llama 3.3 70B mới nhất của Groq
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            model="llama-3.3-70b-versatile", # Đã cập nhật Model
-            temperature=0.7,
-            max_tokens=600,
-        )
-        return chat_completion.choices[0].message.content
-    except Exception as e:
-        return f"🤖 Có lỗi xảy ra trong quá trình kết nối với não bộ AI (Lỗi: {str(e)}). Vui lòng thử lại!"
 
 
 # -----------------------------------------------------------------------------
@@ -371,7 +314,7 @@ def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_s
 st.markdown("""
 <div class="main-header">
     <h1>🇨🇳 App Học Tiếng Trung Ehou Pro</h1>
-    <p>Tối ưu giao diện Mobile & Laptop - Tích hợp Gia sư AI (Groq SDK) chống lỗi 403</p>
+    <p>Tối ưu giao diện Mobile & Laptop - Tập viết, Từ vựng, Gia sư AI & Trắc nghiệm</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -428,7 +371,7 @@ if menu == "✍️ Tập Viết Bút Thuận":
 # -----------------------------------------------------------------------------
 # TAB 2: COMPREHENSIVE THEORY (LESSONS 1 - 7)
 # -----------------------------------------------------------------------------
-elif menu == "📖 Cẩm Nang Lý Thuyết (Bài 1-7)":
+elif menu == "📖 Cẩm Nang Lý Thuyết":
     st.header("📖 Cẩm Nang Lý Thuyết Chuẩn Ehou (Bài 1 - 7)")
     
     lesson_tab1, lesson_tab2, lesson_tab3, lesson_tab4, lesson_tab5, lesson_tab6, lesson_tab7 = st.tabs([
@@ -551,7 +494,7 @@ elif menu == "📖 Cẩm Nang Lý Thuyết (Bài 1-7)":
         Thành phần đứng trước bổ nghĩa cho danh từ gọi là Định ngữ.
         *   **Cấu trúc:** `Định ngữ + 的 + Trung tâm ngữ`.
         *   **Chỉ sở hữu:** Bắt buộc có 的. VD: `我的书` (Sách của tôi).
-        *   **Lược bỏ 的:** Khi định ngữ là đại từ nhân xưng chỉ quan hệ thân thuộc (gia đình, cơ quan). VD: `我妈妈` (Mẹ tôi), `我们学校` (Trường chúng tôi).
+        *   **Lược bỏ 的:** Khi định ngữ là đại từ nhân xưng chỉ quan quan hệ thân thuộc (gia đình, cơ quan). VD: `我妈妈` (Mẹ tôi), `我们学校` (Trường chúng tôi).
         """)
 
     with lesson_tab7:
@@ -577,7 +520,7 @@ elif menu == "📖 Cẩm Nang Lý Thuyết (Bài 1-7)":
         """)
 
 # -----------------------------------------------------------------------------
-# TAB 3: VOCABULARY LIST
+# TAB 4: VOCABULARY LIST
 # -----------------------------------------------------------------------------
 elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
     st.header("🗂️ Tổng Ôn Danh Sách Từ Vựng")
@@ -624,7 +567,7 @@ elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
         st.warning("Không tìm thấy từ vựng.")
 
 # -----------------------------------------------------------------------------
-# TAB 4: QUIZ PRACTICE
+# TAB 5: QUIZ PRACTICE
 # -----------------------------------------------------------------------------
 elif menu == "📝 Luyện Tập Trắc Nghiệm":
     st.header("📝 Trắc Nghiệm Tương Tác (53 Câu)")
@@ -642,7 +585,8 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm":
     m3.metric("Số câu đúng", f"{correct_count}")
     st.markdown("---")
     
-    for idx, q in enumerate(filtered_qs[:10]): # Limit to 10 for performance, user can extend
+    # Render all questions (Limit 15 for demo performance, user can extend)
+    for idx, q in enumerate(filtered_qs[:15]): 
         st.markdown(f"#### Câu {idx + 1}: {q['question']}")
         
         if "audioText" in q and q["audioText"]:
@@ -667,26 +611,44 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm":
         st.rerun()
 
 # -----------------------------------------------------------------------------
-# TAB 5: AI CHAT (GROQ API)
+# TAB 6: AI CHAT (GROQ API)
 # -----------------------------------------------------------------------------
 elif menu == "🤖 Chat Với Gia Sư AI":
     st.header("🤖 Trò Chuyện Trực Tiếp Cùng Gia Sư AI")
     st.markdown("Gia sư AI được tích hợp công nghệ Llama 3.3 mới nhất thông qua Groq SDK (chính chủ), đảm bảo tốc độ siêu mượt và không bị chặn kết nối.")
 
-    if "chat_msgs" not in st.session_state:
-        st.session_state.chat_msgs = [{"role": "assistant", "content": "你好 (Nǐ hǎo)! Gia sư AI của Ehou sẵn sàng hỗ trợ bạn. Bạn muốn hỏi cách nhớ chữ Hán, hay quy tắc ngữ pháp nào?"}]
+    if not Groq:
+        st.error("🚨 Không tìm thấy thư viện `groq`. Nếu chạy local, hãy mở terminal gõ: `pip install groq`. Nếu trên Streamlit Cloud, hãy kiểm tra file `requirements.txt`.")
+    else:
+        GROQ_API_KEY = "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"
 
-    for msg in st.session_state.chat_msgs:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+        if "chat_msgs" not in st.session_state:
+            st.session_state.chat_msgs = [{"role": "assistant", "content": "你好 (Nǐ hǎo)! Gia sư AI của Ehou sẵn sàng hỗ trợ bạn. Bạn muốn hỏi cách nhớ chữ Hán, hay quy tắc ngữ pháp nào?"}]
 
-    if prompt := st.chat_input("Nhập câu hỏi (VD: Cách phân biệt 大 và 太)..."):
-        st.session_state.chat_msgs.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+        for msg in st.session_state.chat_msgs:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
 
-        with st.chat_message("assistant"):
-            with st.spinner("Gia sư đang suy nghĩ..."):
-                response = get_ai_explanation("general_chat", prompt)
-                st.markdown(response)
-                st.session_state.chat_msgs.append({"role": "assistant", "content": response})
+        if prompt := st.chat_input("Nhập câu hỏi (VD: Cách phân biệt 大 và 太)..."):
+            st.session_state.chat_msgs.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            with st.chat_message("assistant"):
+                with st.spinner("Gia sư đang suy nghĩ..."):
+                    try:
+                        client = Groq(api_key=GROQ_API_KEY)
+                        chat_completion = client.chat.completions.create(
+                            messages=[
+                                {"role": "system", "content": "Bạn là giáo viên dạy Tiếng Trung Quốc vui tính. Trả lời bằng tiếng Việt ngắn gọn, dễ hiểu."},
+                                {"role": "user", "content": prompt}
+                            ],
+                            model="llama-3.3-70b-versatile",
+                            temperature=0.7,
+                            max_tokens=600,
+                        )
+                        response = chat_completion.choices[0].message.content
+                        st.markdown(response)
+                        st.session_state.chat_msgs.append({"role": "assistant", "content": response})
+                    except Exception as e:
+                        st.error(f"Lỗi API: {str(e)}")
