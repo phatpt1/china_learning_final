@@ -615,7 +615,6 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm":
 # -----------------------------------------------------------------------------
 elif menu == "🤖 Chat Với Gia Sư AI":
     st.header("🤖 Trò Chuyện Trực Tiếp Cùng Gia Sư AI")
-    st.markdown("Gia sư AI được tích hợp công nghệ Llama 3.3 mới nhất thông qua Groq SDK (chính chủ), đảm bảo tốc độ siêu mượt và không bị chặn kết nối.")
 
     if not Groq:
         st.error("🚨 Không tìm thấy thư viện `groq`. Nếu chạy local, hãy mở terminal gõ: `pip install groq`. Nếu trên Streamlit Cloud, hãy kiểm tra file `requirements.txt`.")
