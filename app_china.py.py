@@ -77,7 +77,7 @@ GROQ_API_KEY = "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"
 def get_ai_explanation(query_type, context):
     """
     Sử dụng SDK chính chủ của Groq để gọi AI.
-    Không bị lỗi Cloudflare 403/1010.
+    Đã cập nhật model lên phiên bản mới nhất llama-3.3-70b-versatile
     """
     try:
         client = Groq(api_key=GROQ_API_KEY)
@@ -97,13 +97,13 @@ def get_ai_explanation(query_type, context):
         prompt = context
 
     try:
-        # Sử dụng mô hình Llama3 qua Groq cho tốc độ siêu nhanh và thông minh
+        # Sử dụng mô hình Llama 3.3 70B mới nhất của Groq
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt}
             ],
-            model="llama-3.3-70b-versatile", 
+            model="llama-3.3-70b-versatile", # Đã cập nhật Model
             temperature=0.7,
             max_tokens=600,
         )
@@ -371,7 +371,7 @@ def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_s
 st.markdown("""
 <div class="main-header">
     <h1>🇨🇳 App Học Tiếng Trung Ehou Pro</h1>
-    <p>Tối ưu giao diện Mobile & Laptop - Tích hợp Gia sư AI </p>
+    <p>Tối ưu giao diện Mobile & Laptop - Tích hợp Gia sư AI (Groq SDK) chống lỗi 403</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -423,14 +423,6 @@ if menu == "✍️ Tập Viết Bút Thuận":
         target_meaning = char_info["meaning"]
         target_compounds = char_info["compounds"]
 
-    # AI Button for Mnemonic
-    st.markdown("<div class='ai-btn-container'>", unsafe_allow_html=True)
-    if st.button(f"🤖 Hỏi Gia Sư AI: Cách nhớ chữ '{target_char}'"):
-        with st.spinner("Gia sư đang suy nghĩ mẹo hay nhất..."):
-            ans = get_ai_explanation("char_mnemonic", target_char)
-            st.info(ans)
-    st.markdown("</div>", unsafe_allow_html=True)
-
     render_mobile_hanzi_writer(target_char, target_pinyin, target_meaning, target_compounds)
 
 # -----------------------------------------------------------------------------
@@ -438,13 +430,6 @@ if menu == "✍️ Tập Viết Bút Thuận":
 # -----------------------------------------------------------------------------
 elif menu == "📖 Cẩm Nang Lý Thuyết":
     st.header("📖 Cẩm Nang Lý Thuyết Chuẩn Ehou")
-    
-    st.markdown("<div class='ai-btn-container'>", unsafe_allow_html=True)
-    if st.button("🤖 Hỏi Gia Sư AI: Tóm tắt mẹo ngữ pháp quan trọng nhất"):
-        with st.spinner("Đang tổng hợp..."):
-            ans = get_ai_explanation("general_chat", "Hãy tóm tắt 3 quy tắc biến điệu Pinyin quan trọng nhất (như chữ 不 và 2 thanh 3) một cách cực kỳ ngắn gọn dễ nhớ.")
-            st.info(ans)
-    st.markdown("</div>", unsafe_allow_html=True)
 
     lesson_tab1, lesson_tab2, lesson_tab3, lesson_tab4, lesson_tab5, lesson_tab6, lesson_tab7 = st.tabs([
         "Bài 1", "Bài 2", "Bài 3", "Bài 4", "Bài 5", "Bài 6", "Bài 7"
@@ -453,14 +438,10 @@ elif menu == "📖 Cẩm Nang Lý Thuyết":
     with lesson_tab1:
         st.subheader("第一课：你好 (Xin Chào)")
         st.markdown("**1. Biến điệu 2 thanh 3:** Khi 2 thanh 3 đi liền nhau, thanh 3 đầu tiên đọc thành thanh 2. VD: `nǐ + hǎo ➔ ní hǎo`.")
-        if st.button("🤖 Hỏi AI: Giải thích lại Biến điệu 2 thanh 3", key="ai_l1"):
-            st.info(get_ai_explanation("grammar_theory", "Quy tắc biến điệu khi 2 chữ mang thanh 3 đi liền nhau."))
 
     with lesson_tab2:
         st.subheader("第二课：汉语难吗 (Tiếng Hán Khó Không)")
         st.markdown("**1. Biến điệu của 不 (bù):** Đứng trước thanh 4 biến thành `bú`. Các thanh khác giữ nguyên `bù`.")
-        if st.button("🤖 Hỏi AI: Cho ví dụ biến điệu chữ 不", key="ai_l2"):
-            st.info(get_ai_explanation("grammar_theory", "Quy tắc biến điệu của chữ 不 (bù) khi đứng trước các thanh điệu khác nhau."))
 
     with lesson_tab3:
         st.subheader("第三课：谢谢您 (Cảm Ơn Ngài)")
@@ -481,20 +462,12 @@ elif menu == "📖 Cẩm Nang Lý Thuyết":
     with lesson_tab7:
         st.subheader("第七课：今天星期几 (Hôm Nay Thứ Mấy)")
         st.markdown("**1. Thời gian:** Xếp từ Lớn ➔ Nhỏ: Năm - Tháng - Ngày.")
-        if st.button("🤖 Hỏi AI: Cách đếm Thứ trong tiếng Trung", key="ai_l7"):
-            st.info(get_ai_explanation("grammar_theory", "Cách nói Thứ trong tuần bằng tiếng Trung (từ Thứ 2 đến Chủ nhật)."))
 
 # -----------------------------------------------------------------------------
 # TAB 3: VOCABULARY LIST
 # -----------------------------------------------------------------------------
 elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
     st.header("🗂️ Tổng Ôn Danh Sách Từ Vựng")
-    
-    st.markdown("<div class='ai-btn-container'>", unsafe_allow_html=True)
-    if st.button("🤖 Hỏi Gia Sư AI: Cách học từ vựng hiệu quả nhất"):
-        with st.spinner("Gia sư đang viết bí kíp..."):
-            st.info(get_ai_explanation("general_chat", "Hãy chia sẻ 3 mẹo hiệu quả nhất để học và nhớ từ vựng tiếng Trung nhanh chóng cho người mới bắt đầu."))
-    st.markdown("</div>", unsafe_allow_html=True)
 
     vocab_dict = get_writing_vocab()
     search_query = st.text_input("🔍 Tra cứu (Hán tự, Pinyin, Nghĩa):", "").strip().lower()
@@ -573,12 +546,6 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm":
             else:
                 st.error(f"❌ Sai. Đáp án đúng: **{q['options'][q['correct']]}**")
             st.info(f"💡 Giải thích cơ bản: {q['explanation']}")
-            
-            # AI Button for specific question explanation
-            if st.button(f"🤖 Hỏi AI giải thích cặn kẽ câu {idx+1}", key=f"ai_q_{idx}"):
-                with st.spinner("AI đang phân tích câu hỏi này..."):
-                    context_prompt = f"Học viên làm sai/đúng câu hỏi: '{q['question']}' với các lựa chọn {q['options']}. Đáp án đúng là {q['options'][q['correct']]}. Giải thích của hệ thống là '{q['explanation']}'. Hãy giải thích lại một cách chi tiết, dễ hiểu và dễ nhớ hơn cho người mới học."
-                    st.info(get_ai_explanation("general_chat", context_prompt))
                     
         st.markdown("---")
         
@@ -591,7 +558,7 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm":
 # -----------------------------------------------------------------------------
 elif menu == "🤖 Chat Với Gia Sư AI":
     st.header("🤖 Trò Chuyện Trực Tiếp Cùng Gia Sư AI")
-    st.markdown("Gia sư AI được tích hợp công nghệ Llama3 thông qua Groq SDK (chính chủ), đảm bảo tốc độ siêu mượt và không bị chặn kết nối.")
+    st.markdown("Gia sư AI được tích hợp công nghệ Llama 3.3 mới nhất thông qua Groq SDK (chính chủ), đảm bảo tốc độ siêu mượt và không bị chặn kết nối.")
 
     if "chat_msgs" not in st.session_state:
         st.session_state.chat_msgs = [{"role": "assistant", "content": "你好 (Nǐ hǎo)! Gia sư AI của Ehou sẵn sàng hỗ trợ bạn. Bạn muốn hỏi cách nhớ chữ Hán, hay quy tắc ngữ pháp nào?"}]
