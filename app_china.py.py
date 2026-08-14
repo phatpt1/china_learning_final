@@ -41,16 +41,6 @@ st.markdown("""
         margin: 0;
     }
 
-    /* Card Containers */
-    .feature-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 1.2rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
-
     /* Hide Streamlit Padding on Mobile */
     @media (max-width: 640px) {
         .block-container {
@@ -539,7 +529,12 @@ st.markdown("""
 
 menu = st.sidebar.radio(
     "📌 Lựa chọn chức năng:",
-    ["✍️ Tập Viết Bút Thuận (HanziWriter)", "📖 Cẩm Nang Lý Thuyết (Bài 1-7)", "📝 Luyện Tập Trắc Nghiệm (53 câu)"]
+    [
+        "✍️ Tập Viết Bút Thuận (HanziWriter)", 
+        "📖 Cẩm Nang Lý Thuyết (Bài 1-7)", 
+        "🗂️ Tổng Ôn Từ Vựng Nhanh",
+        "📝 Luyện Tập Trắc Nghiệm (53 câu)"
+    ]
 )
 
 st.sidebar.markdown("---")
@@ -688,10 +683,92 @@ elif menu == "📖 Cẩm Nang Lý Thuyết (Bài 1-7)":
         """)
 
 # -----------------------------------------------------------------------------
-# TAB 3: QUIZ PRACTICE (53 QUESTIONS)
+# TAB 3: VOCABULARY LIST (TỔNG ÔN TỪ VỰNG)
+# -----------------------------------------------------------------------------
+elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
+    st.header("🗂️ Tổng Ôn Danh Sách Từ Vựng Nhanh")
+    st.markdown("Bảng tổng hợp toàn bộ từ vựng trọng tâm. Bạn có thể tìm kiếm và bấm vào nút loa để nghe phát âm ngay lập tức!")
+
+    vocab_dict = get_writing_vocab()
+    
+    search_query = st.text_input("🔍 Tìm kiếm từ vựng (Nhập Hán tự, Pinyin hoặc Nghĩa):", "").strip().lower()
+    
+    # Generate HTML Table for lightning-fast rendering of audio buttons
+    html_table = """
+    <style>
+    .vocab-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .vocab-table th, .vocab-table td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+    .vocab-table th { background-color: #f8fafc; font-weight: bold; color: #0f172a; font-size: 14px; }
+    .vocab-table tr:nth-child(even) { background-color: #f8fafc; }
+    .vocab-table tr:hover { background-color: #f1f5f9; }
+    .hanzi-text { font-size: 1.5rem; font-weight: bold; color: #dc2626; }
+    .pinyin-text { font-weight: 600; color: #475569; }
+    .btn-audio { background-color: #fee2e2; color: #e11d48; border: 1px solid #fecdd3; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background-color 0.2s;}
+    .btn-audio:hover { background-color: #fecdd3; }
+    </style>
+    <table class="vocab-table">
+        <thead>
+            <tr>
+                <th>Bài</th>
+                <th>Chữ Hán</th>
+                <th>Pinyin</th>
+                <th>Ý nghĩa</th>
+                <th>Ví dụ / Từ ghép</th>
+                <th>Phát âm</th>
+            </tr>
+        </thead>
+        <tbody>
+    """
+    
+    count = 0
+    for lesson, words in vocab_dict.items():
+        lesson_short = lesson.split(':')[0]
+        for w in words:
+            # Filtering logic
+            if (search_query in w['char'].lower() or 
+                search_query in w['pinyin'].lower() or 
+                search_query in w['meaning'].lower()):
+                
+                clean_pinyin = w['char'].replace("'", "\\'") 
+                html_table += f"""
+                <tr>
+                    <td><span style="font-size: 12px; color: #64748b; font-weight: bold;">{lesson_short}</span></td>
+                    <td class="hanzi-text">{w['char']}</td>
+                    <td class="pinyin-text">{w['pinyin']}</td>
+                    <td>{w['meaning']}</td>
+                    <td style="font-size: 13px;">{w['compounds']}</td>
+                    <td><button class="btn-audio" onclick="speakZH('{clean_pinyin}')">🔊 Nghe</button></td>
+                </tr>
+                """
+                count += 1
+
+    html_table += """
+        </tbody>
+    </table>
+    <script>
+    function speakZH(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            var msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'zh-CN';
+            msg.rate = 0.85;
+            window.speechSynthesis.speak(msg);
+        }
+    }
+    </script>
+    """
+    
+    if count > 0:
+        st.success(f"Đã tìm thấy **{count}** từ vựng.")
+        components.html(html_table, height=700, scrolling=True)
+    else:
+        st.warning("Không tìm thấy từ vựng nào khớp với từ khóa của bạn.")
+
+# -----------------------------------------------------------------------------
+# TAB 4: QUIZ PRACTICE (53 QUESTIONS)
 # -----------------------------------------------------------------------------
 elif menu == "📝 Luyện Tập Trắc Nghiệm (53 câu)":
-    st.header("📝 Trắc Nghiệm Tổng Hợp Đề Thi Ehou (53 Câu)")
+    st.header("📝 Luyện Tập Trắc Nghiệm Tương Tác")
     
     quiz_questions = get_quiz_questions()
     
@@ -699,7 +776,7 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm (53 câu)":
         st.session_state.user_answers = {}
         
     filter_cat = st.selectbox(
-        "🎯 Lọc câu hỏi theo dạng bài:",
+        "🎯 Lọc câu hỏi theo chủ đề:",
         ["Tất cả (Full 53 câu)", "File Nghe Audio", "Bộ Thủ & Chữ Hán", "Ngữ Pháp & Giao Tiếp"]
     )
     
@@ -710,36 +787,54 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm (53 câu)":
         "Ngữ Pháp & Giao Tiếp": "grammar"
     }
     
-    selected_cat = cat_map[filter_cat]
-    filtered_qs = [q for q in quiz_questions if selected_cat == "all" or q["category"] == selected_cat]
+    selected_category = cat_map[filter_cat]
     
-    correct_count = sum(1 for idx, q in enumerate(filtered_qs) if st.session_state.user_answers.get(idx) == q["correct"])
+    filtered_questions = [
+        q for q in quiz_questions 
+        if selected_category == "all" or q["category"] == selected_category
+    ]
     
-    col_m1, col_m2, col_m3 = st.columns(3)
-    col_m1.metric("Tổng số câu", len(filtered_qs))
-    col_m2.metric("Đã làm", len(st.session_state.user_answers))
-    col_m3.metric("Số câu đúng", f"{correct_count} / {len(filtered_qs)}")
+    # Calculate score
+    correct_count = 0
+    total_answered = 0
+    
+    for idx, q in enumerate(filtered_questions):
+        # We need the global index to track answers correctly across filters
+        global_idx = quiz_questions.index(q)
+        if global_idx in st.session_state.user_answers:
+            total_answered += 1
+            if st.session_state.user_answers[global_idx] == q["correct"]:
+                correct_count += 1
+
+    # Score Metrics Header
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Tổng câu hỏi", len(filtered_questions))
+    m2.metric("Đã làm", total_answered)
+    m3.metric("Số câu đúng", f"{correct_count} / {len(filtered_questions)}")
     
     st.markdown("---")
     
-    for idx, q in enumerate(filtered_qs):
+    # Render Question Cards
+    for idx, q in enumerate(filtered_questions):
+        global_idx = quiz_questions.index(q)
         st.markdown(f"#### Câu {idx + 1}: {q['question']}")
         
+        # Render audio button if audio text exists
         if "audioText" in q and q["audioText"]:
             render_audio_btn(q["audioText"], label=f"🔊 Nghe File Audio ('{q['audioText']}')")
             
-        user_choice = st.radio(
-            "Chọn đáp án:",
+        selected_option = st.radio(
+            "Chọn đáp án của bạn:",
             options=q["options"],
-            key=f"quiz_q_{idx}",
-            index=None
+            key=f"q_{global_idx}",
+            index=st.session_state.user_answers.get(global_idx)
         )
         
-        if user_choice is not None:
-            chosen_idx = q["options"].index(user_choice)
-            st.session_state.user_answers[idx] = chosen_idx
+        if selected_option is not None:
+            selected_idx = q["options"].index(selected_option)
+            st.session_state.user_answers[global_idx] = selected_idx
             
-            if chosen_idx == q["correct"]:
+            if selected_idx == q["correct"]:
                 st.success("✅ Chính xác!")
             else:
                 st.error(f"❌ Chưa đúng! Đáp án đúng là: **{q['options'][q['correct']]}**")
@@ -748,6 +843,7 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm (53 câu)":
             
         st.markdown("---")
 
+    # Reset Quiz Button
     if st.button("🔄 Làm lại tất cả bài thi"):
         st.session_state.user_answers = {}
         st.rerun()
