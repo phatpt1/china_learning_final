@@ -1,2 +1,1 @@
-streamlit>=1.30.0 
-groq>=0.4.2
+groq
