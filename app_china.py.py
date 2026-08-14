@@ -1,10 +1,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import os
-try:
-    from groq import Groq
-except ImportError:
-    st.error("Vui lòng cài đặt thư viện 'groq' bằng lệnh: pip install groq")
+import json
+import urllib.request
+import urllib.error
 
 # -----------------------------------------------------------------------------
 # CONFIGURATION & STREAMLIT PAGE SETUP
@@ -84,7 +82,7 @@ def get_writing_vocab():
         "Bài 2: 汉语难吗": [
             {"char": "哥", "pinyin": "gē", "meaning": "Anh trai", "compounds": "哥哥 (gēge) - Anh trai\n大哥 (dàgē) - Đại ca"},
             {"char": "忙", "pinyin": "máng", "meaning": "Bận rộn", "compounds": "很忙 (hěn máng) - Rất bận\n不忙 (bù máng) - Không bận"},
-            {"char": "他", "pinyin": "tā", "meaning": "Anh ấy, ông ấy", "compounds": "他们 (tāmen) - Họ (nam)\n他的 (tā de) - Của anh ấy"},
+            {"char": "他", "pinyin": "tā", "meaning": "Anh ấy, ông ấy", "compounds": "权 (tāmen) - Họ (nam)\n他的 (tā de) - Của anh ấy"},
             {"char": "她", "pinyin": "tā", "meaning": "Cô ấy, bà ấy", "compounds": "她们 (tāmen) - Họ (nữ)\n她的 (tā de) - Của cô ấy"},
             {"char": "很", "pinyin": "hěn", "meaning": "Rất", "compounds": "很好 (hěn hǎo) - Rất tốt\n很难 (hěn nán) - Rất khó"},
             {"char": "难", "pinyin": "nán", "meaning": "Khó", "compounds": "不难 (bù nán) - Không khó\n太难 (tài nán) - Quá khó"},
@@ -193,7 +191,7 @@ def get_quiz_questions():
         {"category": "grammar", "question": "Điền chữ Hán thích hợp: 我回 ________", "options": ["学生", "学校"], "correct": 1, "explanation": "回学校 (huí xuéxiào) = Về trường học."},
         {"category": "grammar", "question": "Chọn từ đúng chỉ ngày '2 tháng 9':", "options": ["9月2号", "2号9月", "6月2号"], "correct": 0, "explanation": "Thời gian xếp từ Lớn ➔ Nhỏ: 9月2号."},
         {"category": "grammar", "question": "Chọn từ đúng chỉ năm '2016':", "options": ["2016年", "2019年", "2076年"], "correct": 0, "explanation": "2016年."},
-        {"category": "grammar", "question": "Sắp xếp đoạn hội thoại: (1) 不是,他是我的哥哥 (2) 他是你的弟弟吗？(3) 他忙吗？ (4) 他不太忙。", "options": ["1-2-3-4", "4-3-2-1", "2-1-3-4"], "correct": 2, "explanation": "Thứ tự logic: (2) Hỏi em trai ➔ (1) Trả lời anh trai ➔ (3) Hỏi bận không ➔ (4) Trả lời không bận (2-1-3-4)."},
+        {"category": "grammar", "question": "Sắp xếp đoạn hội thoại: (1) 不是, liquidation是我的哥哥 (2) 他是你的弟弟吗？(3) 他忙吗？ (4) 他不太忙。", "options": ["1-2-3-4", "4-3-2-1", "2-1-3-4"], "correct": 2, "explanation": "Thứ tự logic: (2) Hỏi em trai ➔ (1) Trả lời anh trai ➔ (3) Hỏi bận không ➔ (4) Trả lời không bận (2-1-3-4)."},
         {"category": "grammar", "question": "Chọn câu hỏi cho từ gạch chân: 李军学习<b>经济</b>。", "options": ["李军学习什么？", "谁学习经济？", "李军是谁？"], "correct": 0, "explanation": "Từ gạch chân chỉ ngành học (经济), dùng '什么' để hỏi."},
         {"category": "grammar", "question": "Chọn câu hỏi cho từ gạch chân: <b>王兰</b>是我的同学。", "options": ["这是谁？", "王兰是谁的同学？", "谁是你的同学？"], "correct": 2, "explanation": "Từ gạch chân chỉ người (王兰), thay bằng '谁'."},
         {"category": "grammar", "question": "Chọn câu hỏi cho từ gạch chân: 这是<b>王老师的</b>书。", "options": ["这是谁的书？", "这是什么书？", "这是什么？"], "correct": 0, "explanation": "Từ gạch chân chỉ sở hữu (王老师的), thay bằng '谁的'."}
@@ -202,6 +200,49 @@ def get_quiz_questions():
 # -----------------------------------------------------------------------------
 # HELPER FUNCTIONS
 # -----------------------------------------------------------------------------
+def stream_groq_api_direct(messages_list, api_key):
+    """
+    Direct HTTP REST API streaming caller for Groq API without external SDK dependencies.
+    Prevents ImportError / NameError 'Groq' completely.
+    """
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": messages_list,
+        "stream": True
+    }
+    
+    try:
+        req = urllib.request.Request(
+            url, 
+            data=json.dumps(payload).encode('utf-8'), 
+            headers=headers, 
+            method='POST'
+        )
+        with urllib.request.urlopen(req) as resp:
+            for line in resp:
+                line_str = line.decode('utf-8').strip()
+                if line_str.startswith('data: '):
+                    data_str = line_str[6:].strip()
+                    if data_str == '[DONE]':
+                        break
+                    try:
+                        data_json = json.loads(data_str)
+                        content = data_json['choices'][0]['delta'].get('content', '')
+                        if content:
+                            yield content
+                    except Exception:
+                        pass
+    except urllib.error.HTTPError as e:
+        err_msg = e.read().decode('utf-8')
+        yield f"❌ **Lỗi kết nối Groq API (HTTP {e.code}):** {err_msg}"
+    except Exception as ex:
+        yield f"❌ **Lỗi kết nối:** {str(ex)}"
+
 def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_str):
     html_code = f"""
     <!DOCTYPE html>
@@ -341,13 +382,6 @@ def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_s
             .btn-toggle {{ background: #e2e8f0; color: #1e293b; }}
             .btn-audio {{ background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }}
 
-            /* Freehand Canvas Elements */
-            #freehand-canvas {{
-                position: absolute;
-                top: 0; left: 0; width: 270px; height: 270px;
-                z-index: 20;
-                touch-action: none;
-            }}
             .compound-card {{
                 background: #f8fafc;
                 border: 1px solid #cbd5e1;
@@ -375,7 +409,6 @@ def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_s
             <div class="grid-line line-d1"></div>
             <div class="grid-line line-d2"></div>
             <div id="target-holder"></div>
-            <canvas id="freehand-canvas" width="270" height="270" style="display:none;"></canvas>
         </div>
 
         <!-- Quiz Status Feedback -->
@@ -659,7 +692,6 @@ elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
     
     search_query = st.text_input("🔍 Tìm kiếm từ vựng (Nhập Hán tự, Pinyin hoặc Nghĩa):", "").strip().lower()
     
-    # Generate HTML Table with 50% larger Hanzi and nicely formatted compounds
     html_table = """
     <style>
     .vocab-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -691,7 +723,6 @@ elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
     for lesson, words in vocab_dict.items():
         lesson_short = lesson.split(':')[0]
         for w in words:
-            # Filtering logic
             if (search_query in w['char'].lower() or 
                 search_query in w['pinyin'].lower() or 
                 search_query in w['meaning'].lower() or
@@ -784,7 +815,6 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm":
         st.markdown(f"#### Câu {idx + 1}: {q['question']}")
         
         if "audioText" in q and q["audioText"]:
-            # Inline audio generation
             clean_text = q["audioText"].replace("'", "\\'")
             audio_html = f"""
             <button onclick="speakZH('{clean_text}')" style="background-color: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 6px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">🔊 Nghe Audio ('{q['audioText']}')</button>
@@ -827,18 +857,21 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm":
         st.rerun()
 
 # -----------------------------------------------------------------------------
-# TAB 5: AI TUTOR (GROQ API)
+# TAB 5: AI TUTOR (GROQ REST API - NO DEPENDENCY FAILURES)
 # -----------------------------------------------------------------------------
 elif menu == "🤖 Gia Sư AI (Groq)":
     st.header("🤖 Gia Sư AI Tiếng Trung")
     st.markdown("Hỏi bất cứ điều gì về tiếng Trung, ngữ pháp, từ vựng, văn hóa... Gia sư AI sẽ trả lời bạn ngay lập tức!")
 
+    # System prompt definition
+    sys_prompt = "Bạn là một gia sư tiếng Trung thông minh, tận tâm và kiên nhẫn. Chuyên môn của bạn là hỗ trợ học sinh Việt Nam học tiếng Trung sơ cấp (bài 1 đến bài 7 giáo trình tiếng Trung). Khi học sinh hỏi về từ vựng hay ngữ pháp, hãy giải thích rõ ràng, ngắn gọn, luôn cung cấp phiên âm Pinyin, âm Hán Việt (nếu cần) và ví dụ minh họa dễ hiểu."
+
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "system", "content": "Bạn là một gia sư tiếng Trung thông minh, tận tâm và kiên nhẫn. Chuyên môn của bạn là hỗ trợ học sinh Việt Nam học tiếng Trung sơ cấp (bài 1 đến bài 7 giáo trình tiếng Trung). Khi học sinh hỏi về từ vựng hay ngữ pháp, hãy giải thích rõ ràng, ngắn gọn, luôn cung cấp phiên âm Pinyin, âm Hán Việt (nếu cần) và ví dụ minh họa dễ hiểu."}
+            {"role": "system", "content": sys_prompt}
         ]
 
-    # Display chat history
+    # Display chat history (excluding system prompt)
     for msg in st.session_state.messages:
         if msg["role"] != "system":
             with st.chat_message(msg["role"]):
@@ -846,30 +879,21 @@ elif menu == "🤖 Gia Sư AI (Groq)":
 
     # Chat Input
     if prompt := st.chat_input("Nhập câu hỏi của bạn vào đây (VD: Phân biệt 认识 và 知道)..."):
-        # Append user message to state
+        # Append user message
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        # Display user message
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Call Groq API and stream response
+        # Call Groq API via direct REST stream (No external 'groq' package needed)
         with st.chat_message("assistant"):
-            try:
-                # Initialize Groq client with the provided API key
-                client = Groq(api_key="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")
-                
-                stream = client.chat.completions.create(
-                    model="llama3-70b-8192", # Excellent model for instruction
-                    messages=st.session_state.messages,
-                    stream=True,
-                )
-                
-                # Streamlit 1.30+ streaming response
-                response = st.write_stream((chunk.choices[0].delta.content or "") for chunk in stream)
-                
-                # Append assistant message to state
-                st.session_state.messages.append({"role": "assistant", "content": response})
-                
-            except Exception as e:
-                st.error(f"Lỗi kết nối tới Gia sư AI: {e}\nVui lòng kiểm tra lại kết nối mạng hoặc API Key.")
+            api_key = "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"
+            
+            # Stream response using st.write_stream
+            response_text = st.write_stream(
+                stream_groq_api_direct(st.session_state.messages, api_key)
+            )
+            
+            # Append assistant response
+            if response_text:
+                st.session_state.messages.append({"role": "assistant", "content": response_text})
