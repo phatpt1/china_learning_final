@@ -371,7 +371,7 @@ def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_s
 st.markdown("""
 <div class="main-header">
     <h1>🇨🇳 App Học Tiếng Trung Ehou Pro</h1>
-    <p>Tối ưu giao diện Mobile & Laptop - Tích hợp Gia sư AI (Groq SDK) chống lỗi 403</p>
+    <p>Tối ưu giao diện Mobile & Laptop - Tích hợp Gia sư AI </p>
 </div>
 """, unsafe_allow_html=True)
 
