@@ -428,40 +428,153 @@ if menu == "✍️ Tập Viết Bút Thuận":
 # -----------------------------------------------------------------------------
 # TAB 2: COMPREHENSIVE THEORY (LESSONS 1 - 7)
 # -----------------------------------------------------------------------------
-elif menu == "📖 Cẩm Nang Lý Thuyết":
-    st.header("📖 Cẩm Nang Lý Thuyết Chuẩn Ehou")
-
+elif menu == "📖 Cẩm Nang Lý Thuyết (Bài 1-7)":
+    st.header("📖 Cẩm Nang Lý Thuyết Chuẩn Ehou (Bài 1 - 7)")
+    
     lesson_tab1, lesson_tab2, lesson_tab3, lesson_tab4, lesson_tab5, lesson_tab6, lesson_tab7 = st.tabs([
         "Bài 1", "Bài 2", "Bài 3", "Bài 4", "Bài 5", "Bài 6", "Bài 7"
     ])
     
     with lesson_tab1:
         st.subheader("第一课：你好 (Xin Chào)")
-        st.markdown("**1. Biến điệu 2 thanh 3:** Khi 2 thanh 3 đi liền nhau, thanh 3 đầu tiên đọc thành thanh 2. VD: `nǐ + hǎo ➔ ní hǎo`.")
-
+        st.markdown("""
+        #### 1. Ngữ âm (拼音)
+        *   **Thanh mẫu (8 âm):** `b`, `p`, `m`, `f`, `d`, `t`, `n`, `l`. 
+            * *Chú ý:* Phân biệt `b` (không bật hơi) và `p` (bật hơi mạnh); `d` (không bật hơi) và `t` (bật hơi).
+        *   **Vận mẫu (10 âm):** `a`, `o`, `e`, `i`, `u`, `ü`, `ai`, `ei`, `ao`, `ou`.
+        
+        #### 2. Thanh điệu (声调)
+        Tiếng Trung có 4 thanh điệu chính và 1 thanh nhẹ:
+        *   **Thanh 1 (55):** Cao, bằng (`mā` - 妈).
+        *   **Thanh 2 (35):** Vuốt lên giống dấu sắc (`má` - 麻).
+        *   **Thanh 3 (214):** Giọng xuống thấp rồi lên (`mǎ` - 马).
+        *   **Thanh 4 (51):** Hạ giọng mạnh, nhanh và dứt khoát (`mà` - 骂).
+        *   **Thanh nhẹ:** Đọc ngắn, nhẹ, không có ký hiệu dấu (`māma`).
+        """)
+        st.warning("🚨 **Quy tắc biến điệu 2 thanh 3:** Khi 2 âm tiết mang thanh 3 đi liền nhau, thanh 3 đầu tiên đọc thành thanh 2. VD: `nǐ + hǎo ➔ ní hǎo`.")
+        
+        st.markdown("""
+        #### 3. Chữ Hán (汉字)
+        *   **7 nét cơ bản:** Chấm (丶), Ngang (一), Sổ (丨), Phẩy (丿), Mác (乀), Hất (㇀), Móc (亅).
+        *   **7 quy tắc bút thuận (thứ tự nét viết):**
+            1. Ngang trước sổ sau (VD: 十)
+            2. Phẩy trước mác sau (VD: 八)
+            3. Trái trước phải sau (VD: 你)
+            4. Trên trước dưới sau (VD: 六)
+            5. Ngoài trước trong sau (VD: 月)
+            6. Vào trước đóng cửa sau (VD: 日)
+            7. Giữa trước hai bên sau (VD: 小)
+        """)
+        
     with lesson_tab2:
         st.subheader("第二课：汉语难吗 (Tiếng Hán Khó Không)")
-        st.markdown("**1. Biến điệu của 不 (bù):** Đứng trước thanh 4 biến thành `bú`. Các thanh khác giữ nguyên `bù`.")
+        st.markdown("""
+        #### 1. Ngữ âm
+        *   **Vận mẫu mũi (5 âm):** `an`, `en`, `ang`, `eng`, `ong`.
+        """)
+        st.info("💡 **Nửa thanh 3 (半三声):** Khi thanh 3 đứng trước thanh 1, 2, 4 hoặc thanh nhẹ, chỉ đọc nửa đầu hạ xuống của thanh 3 (không đọc phần vuốt lên). VD: `hěn máng`, `hěn nán`.")
+
+        st.markdown("""
+        #### 2. Ngữ pháp
+        *   **Trợ từ nghi vấn 吗 (ma):** Đặt ở cuối câu trần thuật để tạo thành câu hỏi (Có... không?). 
+            * VD: `你忙吗？` (Bạn bận không?)
+        """)
+        st.warning("""
+        🚨 **Quy tắc biến điệu của 不 (bù):**
+        - Đứng trước thanh 1, 2, 3: Giữ nguyên thanh 4 đọc là `bù` (VD: `bù nán`, `bù hǎo`).
+        - Đứng trước thanh 4: Bắt buộc biến thành thanh 2 đọc là `bú` (VD: `bú dà`, `bú qù`, `bú shì`).
+        """)
 
     with lesson_tab3:
         st.subheader("第三课：谢谢您 (Cảm Ơn Ngài)")
-        st.markdown("**1. Quy tắc chính tả j, q, x:** Khi `ü` đi với `j, q, x`, bỏ 2 chấm trên đầu. `j + ü ➔ ju`.")
+        st.markdown("""
+        #### 1. Ngữ âm
+        *   **Thanh mẫu mặt lưỡi (3 âm):** `j`, `q`, `x`.
+        *   **Vận mẫu nhóm i & ü:** `ia`, `ie`, `iao`, `iu(iou)`, `ian`, `in`, `iang`, `ing`, `iong`, `üe`, `üan`, `ün`.
+        """)
+        st.error("""
+        🚨 **QUY TẮC CHÍNH TẢ ĐẶC BIỆT (Rất hay thi):**
+        1. Khi `j`, `q`, `x` ghép với `ü` (hoặc `üe`, `üan`, `ün`), bắt buộc phải **bỏ 2 chấm trên đầu chữ ü**, nhưng vẫn đọc là âm ü. 
+           * VD: `j + ü ➔ ju` | `q + üe ➔ que` | `x + üan ➔ xuan`.
+        2. Khi `n`, `l` ghép với `ü`, phải **giữ nguyên 2 chấm** để không nhầm với u (VD: `nǚ`, `lǜ`).
+        3. Khi `i` đứng độc lập thành âm tiết, viết thêm y: `yi`, `ya`, `ye`, `yao`, `you`, `yan`, `yin`, `yang`, `ying`, `yong`.
+        """)
+        st.markdown("""
+        #### 2. Giao tiếp xã giao
+        *   **Cảm ơn:** `谢谢` (xièxie) ➔ **Đáp lại:** `不客气` (bú kèqi - Đừng khách sáo / Không có gì).
+        *   **Xưng hô:** Dùng `您` (nín) thay cho `你` (nǐ) để tôn trọng người lớn tuổi, bề trên.
+        """)
 
     with lesson_tab4:
         st.subheader("第四课：你叫什么名字 (Bạn Tên Là Gì)")
-        st.markdown("**1. Vần -i đặc biệt:** Sau `z, c, s` và `zh, ch, sh, r` đọc thành âm 'ư'.")
+        st.markdown("""
+        #### 1. Ngữ âm
+        *   **Thanh mẫu đầu lưỡi trước:** `z`, `c`, `s` (Không uốn lưỡi, răng cắn nhẹ).
+        *   **Thanh mẫu quặt lưỡi:** `zh`, `ch`, `sh`, `r` (Đầu lưỡi uốn cong lên ngạc cứng).
+        """)
+        st.warning("💡 **Vần '-i' đặc biệt:** Vận mẫu `-i` đi sau `z, c, s` hoặc `zh, ch, sh, r` sẽ đọc thành âm **'ư'**, không đọc là 'i'. VD: `si` đọc là /sư/, `shi` đọc là /shư/.")
+        
+        st.markdown("""
+        #### 2. Ngữ pháp
+        *   **Đại từ nghi vấn 什么 (shénme - Cái gì):** Dùng để hỏi sự vật, hiện tượng.
+            * `你叫什么名字？` (Bạn tên là gì?)
+            * `她教什么？` (Cô ấy dạy môn gì?)
+        """)
 
     with lesson_tab5:
         st.subheader("第五课：你去哪儿 (Bạn Đi Đâu)")
-        st.markdown("**1. Hỏi địa điểm:** 你去哪儿？(Bạn đi đâu?) - 我是越南人。(Tôi là người VN).")
+        st.markdown("""
+        #### 1. Ngữ âm
+        *   **Vận mẫu nhóm u:** `ua`, `uo`, `uai`, `ui(uei)`, `uan`, `un(uen)`, `uang`, `ueng`.
+        *   **Âm uốn lưỡi "er" & Vần nhi hóa (儿化韵):** Khi kết hợp với vần khác, chữ Hán thêm `儿`, pinyin thêm `r` (VD: `哪儿` - nǎr, `玩儿` - wánr).
+        *   **Dấu cách âm ('):** Dùng để phân tách khi âm tiết sau bắt đầu bằng `a`, `o`, `e` đứng ngay sau âm tiết khác (VD: `Tiān'ānmén` - Thiên An Môn).
+        
+        #### 2. Ngữ pháp & Giao tiếp
+        *   **Hỏi địa điểm:** Dùng đại từ nghi vấn `哪儿` (nǎr - ở đâu, chỗ nào). 
+            * VD: `你去哪儿？` (Bạn đi đâu?)
+        *   **Hỏi quốc tịch:** Dùng `哪` (nǎ - nào). 
+            * VD: `你是哪国人？` (Bạn là người nước nào?)
+        *   **Trợ từ 呢 (ne):** Đặt cuối câu để tạo câu hỏi tỉnh lược (Còn... thì sao?).
+            * VD: `我叫李军，你呢？` (Tôi tên Lý Quân, còn bạn?)
+        """)
+        st.info("💡 **Hỏi họ lịch sự:** `您贵姓？` (Ngài họ gì?) ➔ Đáp lại chỉ dùng `我姓...` (Tuyệt đối không dùng `我贵姓`).")
 
     with lesson_tab6:
         st.subheader("第六课：这是我的书 (Đây Là Sách Của Tôi)")
-        st.markdown("**1. Sở hữu với 的 (de):** Định ngữ + 的 + Trung tâm ngữ. VD: 我的书 (Sách của tôi).")
+        st.markdown("""
+        #### 1. Đại từ chỉ định
+        *   **这 (zhè):** Đây, này (Chỉ sự vật, người ở gần người nói). VD: `这是王老师` (Đây là thầy Trương).
+        *   **那 (nà):** Kia, đó (Chỉ sự vật, người ở xa người nói). VD: `那是我的词典` (Kia là từ điển của tôi).
+        *   **谁 (shéi / shuí):** Ai (Dùng hỏi người). VD: `这是谁的书？` (Đây là sách của ai?).
+        
+        #### 2. Trợ từ kết cấu 的 (de) và Định ngữ
+        Thành phần đứng trước bổ nghĩa cho danh từ gọi là Định ngữ.
+        *   **Cấu trúc:** `Định ngữ + 的 + Trung tâm ngữ`.
+        *   **Chỉ sở hữu:** Bắt buộc có 的. VD: `我的书` (Sách của tôi).
+        *   **Lược bỏ 的:** Khi định ngữ là đại từ nhân xưng chỉ quan hệ thân thuộc (gia đình, cơ quan). VD: `我妈妈` (Mẹ tôi), `我们学校` (Trường chúng tôi).
+        """)
 
     with lesson_tab7:
         st.subheader("第七课：今天星期几 (Hôm Nay Thứ Mấy)")
-        st.markdown("**1. Thời gian:** Xếp từ Lớn ➔ Nhỏ: Năm - Tháng - Ngày.")
+        st.markdown("""
+        #### 1. Cách đọc Ngày, Tháng, Năm
+        Quy tắc thời gian của Trung Quốc luôn sắp xếp từ Lớn đến Nhỏ: **Năm ➔ Tháng ➔ Ngày/Mùng ➔ Thứ**.
+        *   **Năm (年 - nián):** Đọc từng chữ số một. Số 0 đọc là `líng`. VD: `2016年` (èr líng yī liù nián).
+        *   **Tháng (月 - yuè):** `一月` (Tháng 1) ➔ `十二月` (Tháng 12).
+        *   **Ngày (号/日):** Khẩu ngữ dùng `号` (hào), văn viết dùng `日` (rì). 
+        *   **Thứ (星期 - xīngqī):** `星期一` (Thứ 2) ➔ `星期六` (Thứ 7). Riêng Chủ nhật là `星期天` (xīngqītiān) hoặc `星期日` (xīngqīrì).
+        *   **Ví dụ:** `2026年9月2号` (Ngày 2 tháng 9 năm 2026).
+
+        #### 2. Hỏi và nói Tuổi tác
+        *   **Dưới 10 tuổi:** `你今年几岁？` (Cháu năm nay mấy tuổi?)
+        *   **Người lớn:** `你今年多大？` (Bạn năm nay bao nhiêu tuổi?)
+        *   **Người già:** `您多大年纪？` (Cụ năm nay bao nhiêu tuổi ạ?)
+
+        #### 3. Câu vị ngữ danh từ
+        *   Là loại câu không có động từ (như `是`), vị ngữ trực tiếp là danh từ hoặc cụm số lượng từ chỉ Thời gian, Giá cả, Tuổi tác.
+        *   **Khẳng định:** `今天星期一。` (Hôm nay thứ Hai). / `我今年二十岁。` (Tôi năm nay 20 tuổi). 
+        *   **Phủ định:** Bắt buộc phải thêm `不是`. VD: `今天不是星期一。` (Hôm nay không phải thứ Hai).
+        """)
 
 # -----------------------------------------------------------------------------
 # TAB 3: VOCABULARY LIST
@@ -558,7 +671,7 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm":
 # -----------------------------------------------------------------------------
 elif menu == "🤖 Chat Với Gia Sư AI":
     st.header("🤖 Trò Chuyện Trực Tiếp Cùng Gia Sư AI")
-
+    st.markdown("Gia sư AI được tích hợp công nghệ Llama 3.3 mới nhất thông qua Groq SDK (chính chủ), đảm bảo tốc độ siêu mượt và không bị chặn kết nối.")
 
     if "chat_msgs" not in st.session_state:
         st.session_state.chat_msgs = [{"role": "assistant", "content": "你好 (Nǐ hǎo)! Gia sư AI của Ehou sẵn sàng hỗ trợ bạn. Bạn muốn hỏi cách nhớ chữ Hán, hay quy tắc ngữ pháp nào?"}]
