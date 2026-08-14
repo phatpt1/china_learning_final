@@ -1,5 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import os
+try:
+    from groq import Groq
+except ImportError:
+    st.error("Vui lòng cài đặt thư viện 'groq' bằng lệnh: pip install groq")
 
 # -----------------------------------------------------------------------------
 # CONFIGURATION & STREAMLIT PAGE SETUP
@@ -67,66 +72,66 @@ st.markdown("""
 def get_writing_vocab():
     return {
         "Bài 1: 你好": [
-            {"char": "你", "pinyin": "nǐ", "meaning": "Bạn, anh, chị (Ngôi 2)", "compounds": "你好 (nǐ hǎo) - Xin chào"},
-            {"char": "好", "pinyin": "hǎo", "meaning": "Tốt, đẹp, hay", "compounds": "很好 (hěn hǎo) - Rất tốt"},
-            {"char": "妈", "pinyin": "mā", "meaning": "Mẹ, má", "compounds": "妈妈 (māma) - Mẹ"},
-            {"char": "爸", "pinyin": "bà", "meaning": "Bố, ba", "compounds": "爸爸 (bàba) - Bố"},
-            {"char": "弟", "pinyin": "dì", "meaning": "Em trai", "compounds": "弟弟 (dìdi) - Em trai"},
-            {"char": "妹", "pinyin": "mèi", "meaning": "Em gái", "compounds": "妹妹 (mèimei) - Em gái"},
-            {"char": "女", "pinyin": "nǚ", "meaning": "Nữ, con gái", "compounds": "女儿 (nǚ'ér) - Con gái"},
-            {"char": "大", "pinyin": "dà", "meaning": "To, lớn", "compounds": "大学 (dàxué) - Đại học"}
+            {"char": "你", "pinyin": "nǐ", "meaning": "Bạn, anh, chị (Ngôi 2)", "compounds": "你好 (nǐ hǎo) - Xin chào\n你们 (nǐmen) - Các bạn"},
+            {"char": "好", "pinyin": "hǎo", "meaning": "Tốt, đẹp, hay", "compounds": "很好 (hěn hǎo) - Rất tốt\n好人 (hǎo rén) - Người tốt"},
+            {"char": "妈", "pinyin": "mā", "meaning": "Mẹ, má", "compounds": "妈妈 (māma) - Mẹ\n大妈 (dàmā) - Bác gái"},
+            {"char": "爸", "pinyin": "bà", "meaning": "Bố, ba", "compounds": "爸爸 (bàba) - Bố\n老爸 (lǎobà) - Bố già"},
+            {"char": "弟", "pinyin": "dì", "meaning": "Em trai", "compounds": "弟弟 (dìdi) - Em trai\n兄弟 (xiōngdì) - Huynh đệ"},
+            {"char": "妹", "pinyin": "mèi", "meaning": "Em gái", "compounds": "妹妹 (mèimei) - Em gái\n姐妹 (jiěmèi) - Chị em"},
+            {"char": "女", "pinyin": "nǚ", "meaning": "Nữ, con gái", "compounds": "女儿 (nǚ'ér) - Con gái\n女人 (nǚrén) - Phụ nữ"},
+            {"char": "大", "pinyin": "dà", "meaning": "To, lớn", "compounds": "大学 (dàxué) - Đại học\n大家 (dàjiā) - Mọi người"}
         ],
         "Bài 2: 汉语难吗": [
-            {"char": "哥", "pinyin": "gē", "meaning": "Anh trai", "compounds": "哥哥 (gēge) - Anh trai"},
-            {"char": "忙", "pinyin": "máng", "meaning": "Bận rộn", "compounds": "很忙 (hěn máng) - Rất bận"},
-            {"char": "他", "pinyin": "tā", "meaning": "Anh ấy, ông ấy", "compounds": "他们 (tāmen) - Họ (nam)"},
-            {"char": "她", "pinyin": "tā", "meaning": "Cô ấy, bà ấy", "compounds": "她们 (tāmen) - Họ (nữ)"},
-            {"char": "很", "pinyin": "hěn", "meaning": "Rất", "compounds": "很好 (hěn hǎo) - Rất tốt"},
-            {"char": "难", "pinyin": "nán", "meaning": "Khó", "compounds": "不难 (bù nán) - Không khó"},
-            {"char": "不", "pinyin": "bù", "meaning": "Không, chẳng", "compounds": "不太 (bú tài) - Không lắm"},
-            {"char": "太", "pinyin": "tài", "meaning": "Quá, lắm", "compounds": "太太 (tàitai) - Bà thái"}
+            {"char": "哥", "pinyin": "gē", "meaning": "Anh trai", "compounds": "哥哥 (gēge) - Anh trai\n大哥 (dàgē) - Đại ca"},
+            {"char": "忙", "pinyin": "máng", "meaning": "Bận rộn", "compounds": "很忙 (hěn máng) - Rất bận\n不忙 (bù máng) - Không bận"},
+            {"char": "他", "pinyin": "tā", "meaning": "Anh ấy, ông ấy", "compounds": "他们 (tāmen) - Họ (nam)\n他的 (tā de) - Của anh ấy"},
+            {"char": "她", "pinyin": "tā", "meaning": "Cô ấy, bà ấy", "compounds": "她们 (tāmen) - Họ (nữ)\n她的 (tā de) - Của cô ấy"},
+            {"char": "很", "pinyin": "hěn", "meaning": "Rất", "compounds": "很好 (hěn hǎo) - Rất tốt\n很难 (hěn nán) - Rất khó"},
+            {"char": "难", "pinyin": "nán", "meaning": "Khó", "compounds": "不难 (bù nán) - Không khó\n太难 (tài nán) - Quá khó"},
+            {"char": "不", "pinyin": "bù", "meaning": "Không, chẳng", "compounds": "不太 (bú tài) - Không lắm\n不好 (bù hǎo) - Không tốt"},
+            {"char": "太", "pinyin": "tài", "meaning": "Quá, lắm", "compounds": "太太 (tàitai) - Bà thái\n太大了 (tài dà le) - To quá"}
         ],
         "Bài 3: 谢谢您": [
             {"char": "您", "pinyin": "nín", "meaning": "Ngài, ông, bà (Lịch sự)", "compounds": "您好 (nín hǎo) - Chào ngài"},
-            {"char": "请", "pinyin": "qǐng", "meaning": "Mời, xin", "compounds": "请进 (qǐng jìn) - Mời vào"},
-            {"char": "进", "pinyin": "jìn", "meaning": "Vào, tiến", "compounds": "请进 (qǐng jìn) - Mời vào"},
+            {"char": "请", "pinyin": "qǐng", "meaning": "Mời, xin", "compounds": "请进 (qǐng jìn) - Mời vào\n请问 (qǐng wèn) - Xin hỏi"},
+            {"char": "进", "pinyin": "jìn", "meaning": "Vào, tiến", "compounds": "请进 (qǐng jìn) - Mời vào\n进去 (jìn qù) - Đi vào"},
             {"char": "谢", "pinyin": "xiè", "meaning": "Cảm ơn", "compounds": "谢谢 (xièxie) - Cảm ơn"},
-            {"char": "去", "pinyin": "qù", "meaning": "Đi", "compounds": "去学校 (qù xuéxiào) - Đi đến trường"},
-            {"char": "钱", "pinyin": "qián", "meaning": "Tiền", "compounds": "取钱 (qǔ qián) - Rút tiền"},
-            {"char": "姐", "pinyin": "jiě", "meaning": "Chị gái", "compounds": "姐姐 (jiějie) - Chị gái"},
-            {"char": "校", "pinyin": "xiào", "meaning": "Trường học", "compounds": "学校 (xuéxiào) - Trường học"}
+            {"char": "去", "pinyin": "qù", "meaning": "Đi", "compounds": "去学校 (qù xuéxiào) - Đi đến trường\n去银行 (qù yínháng) - Đi ngân hàng"},
+            {"char": "钱", "pinyin": "qián", "meaning": "Tiền", "compounds": "取钱 (qǔ qián) - Rút tiền\n多少钱 (duōshǎo qián) - Bao nhiêu tiền"},
+            {"char": "姐", "pinyin": "jiě", "meaning": "Chị gái", "compounds": "姐姐 (jiějie) - Chị gái\n小姐 (xiǎojiě) - Cô gái, tiểu thư"},
+            {"char": "校", "pinyin": "xiào", "meaning": "Trường học", "compounds": "学校 (xuéxiào) - Trường học\n校长 (xiàozhǎng) - Hiệu trưởng"}
         ],
         "Bài 4: 你叫什么名字": [
-            {"char": "我", "pinyin": "wǒ", "meaning": "Tôi, ta", "compounds": "我们 (wǒmen) - Chúng tôi"},
-            {"char": "叫", "pinyin": "jiào", "meaning": "Tên là, gọi là", "compounds": "叫什么 (jiào shénme) - Tên là gì"},
-            {"char": "名", "pinyin": "míng", "meaning": "Danh, tên", "compounds": "名字 (míngzi) - Tên"},
-            {"char": "字", "pinyin": "zì", "meaning": "Chữ, tự", "compounds": "汉字 (hànzì) - Chữ Hán"},
-            {"char": "认", "pinyin": "rèn", "meaning": "Nhận, biết", "compounds": "认识 (rènshi) - Quen biết"},
-            {"char": "识", "pinyin": "shí", "meaning": "Thức, biết", "compounds": "认识 (rènshi) - Quen biết"},
-            {"char": "高", "pinyin": "gāo", "meaning": "Cao", "compounds": "高兴 (gāoxìng) - Vui vẻ"},
-            {"char": "兴", "pinyin": "xìng", "meaning": "Hưng, vui", "compounds": "高兴 (gāoxìng) - Vui vẻ"}
+            {"char": "我", "pinyin": "wǒ", "meaning": "Tôi, ta", "compounds": "我们 (wǒmen) - Chúng tôi\n我的 (wǒ de) - Của tôi"},
+            {"char": "叫", "pinyin": "jiào", "meaning": "Tên là, gọi là", "compounds": "叫什么 (jiào shénme) - Tên là gì\n叫门 (jiào mén) - Gọi cửa"},
+            {"char": "名", "pinyin": "míng", "meaning": "Danh, tên", "compounds": "名字 (míngzi) - Tên\n有名 (yǒumíng) - Nổi tiếng"},
+            {"char": "字", "pinyin": "zì", "meaning": "Chữ, tự", "compounds": "汉字 (hànzì) - Chữ Hán\n写字 (xiězì) - Viết chữ"},
+            {"char": "认", "pinyin": "rèn", "meaning": "Nhận, biết", "compounds": "认识 (rènshi) - Quen biết\n认真 (rènzhēn) - Nghiêm túc"},
+            {"char": "识", "pinyin": "shí", "meaning": "Thức, biết", "compounds": "认识 (rènshi) - Quen biết\n知识 (zhīshi) - Tri thức"},
+            {"char": "高", "pinyin": "gāo", "meaning": "Cao", "compounds": "高兴 (gāoxìng) - Vui vẻ\n很高 (hěn gāo) - Rất cao"},
+            {"char": "兴", "pinyin": "xìng", "meaning": "Hưng, vui", "compounds": "高兴 (gāoxìng) - Vui vẻ\n兴趣 (xìngxù) - Hứng thú"}
         ],
         "Bài 5: 你去哪儿": [
-            {"char": "哪", "pinyin": "nǎ", "meaning": "Nào, đâu", "compounds": "哪国人 (nǎ guó rén) - Người nước nào"},
-            {"char": "国", "pinyin": "guó", "meaning": "Nước, quốc gia", "compounds": "中国 (Zhōngguó) - Trung Quốc"},
-            {"char": "人", "pinyin": "rén", "meaning": "Người", "compounds": "越南人 (Yuènán rén) - Người VN"},
-            {"char": "回", "pinyin": "huí", "meaning": "Trở về", "compounds": "回家 (huí jiā) - Về nhà"},
-            {"char": "家", "pinyin": "jiā", "meaning": "Nhà, gia đình", "compounds": "回家 (huí jiā) - Về nhà"},
-            {"char": "见", "pinyin": "jiàn", "meaning": "Gặp, thấy", "compounds": "再见 (zài jiàn) - Tạm biệt"}
+            {"char": "哪", "pinyin": "nǎ", "meaning": "Nào, đâu", "compounds": "哪国人 (nǎ guó rén) - Người nước nào\n哪儿 (nǎr) - Ở đâu"},
+            {"char": "国", "pinyin": "guó", "meaning": "Nước, quốc gia", "compounds": "中国 (Zhōngguó) - Trung Quốc\n国家 (guójiā) - Quốc gia"},
+            {"char": "人", "pinyin": "rén", "meaning": "Người", "compounds": "越南人 (Yuènán rén) - Người VN\n好人 (hǎo rén) - Người tốt"},
+            {"char": "回", "pinyin": "huí", "meaning": "Trở về", "compounds": "回家 (huí jiā) - Về nhà\n回国 (huí guó) - Về nước"},
+            {"char": "家", "pinyin": "jiā", "meaning": "Nhà, gia đình", "compounds": "回家 (huí jiā) - Về nhà\n家人 (jiārén) - Người nhà"},
+            {"char": "见", "pinyin": "jiàn", "meaning": "Gặp, thấy", "compounds": "再见 (zài jiàn) - Tạm biệt\n见面 (jiàn miàn) - Gặp mặt"}
         ],
         "Bài 6: 这是我的书": [
-            {"char": "这", "pinyin": "zhè", "meaning": "Đây, này (Gần)", "compounds": "这是 (zhè shì) - Đây là"},
-            {"char": "那", "pinyin": "nà", "meaning": "Kia, đó (Xa)", "compounds": "那是 (nà shì) - Kia là"},
-            {"char": "书", "pinyin": "shū", "meaning": "Sách", "compounds": "中文书 (Zhōngwén shū) - Sách tiếng Trung"},
-            {"char": "谁", "pinyin": "shéi", "meaning": "Ai", "compounds": "是谁的 (shì shéi de) - Là của ai"}
+            {"char": "这", "pinyin": "zhè", "meaning": "Đây, này (Gần)", "compounds": "这是 (zhè shì) - Đây là\n这里 (zhè lǐ) - Ở đây"},
+            {"char": "那", "pinyin": "nà", "meaning": "Kia, đó (Xa)", "compounds": "那是 (nà shì) - Kia là\n那里 (nà lǐ) - Ở kia"},
+            {"char": "书", "pinyin": "shū", "meaning": "Sách", "compounds": "中文书 (Zhōngwén shū) - Sách tiếng Trung\n看书 (kàn shū) - Đọc sách"},
+            {"char": "谁", "pinyin": "shéi", "meaning": "Ai", "compounds": "是谁的 (shì shéi de) - Là của ai\n谁啊 (shéi a) - Ai vậy"}
         ],
         "Bài 7: 今天星期几": [
-            {"char": "今", "pinyin": "jīn", "meaning": "Nay, hiện tại", "compounds": "今天 (jīntiān) - Hôm nay"},
-            {"char": "天", "pinyin": "tiān", "meaning": "Trời, ngày", "compounds": "明天 (míngtiān) - Ngày mai"},
-            {"char": "星", "pinyin": "xīng", "meaning": "Sao, tinh", "compounds": "星期 (xīngqī) - Tuần/Thứ"},
-            {"char": "期", "pinyin": "qī", "meaning": "Kỳ, thời gian", "compounds": "星期一 (xīngqīyī) - Thứ 2"},
-            {"char": "几", "pinyin": "jǐ", "meaning": "Mấy, vài", "compounds": "星期几 (xīngqī jǐ) - Thứ mấy"},
-            {"char": "岁", "pinyin": "suì", "meaning": "Tuổi", "compounds": "二十岁 (èrshí suì) - 20 tuổi"}
+            {"char": "今", "pinyin": "jīn", "meaning": "Nay, hiện tại", "compounds": "今天 (jīntiān) - Hôm nay\n今年 (jīnnián) - Năm nay"},
+            {"char": "天", "pinyin": "tiān", "meaning": "Trời, ngày", "compounds": "明天 (míngtiān) - Ngày mai\n天气 (tiānqì) - Thời tiết"},
+            {"char": "星", "pinyin": "xīng", "meaning": "Sao, tinh", "compounds": "星期 (xīngqī) - Tuần/Thứ\n星星 (xīngxīng) - Ngôi sao"},
+            {"char": "期", "pinyin": "qī", "meaning": "Kỳ, thời gian", "compounds": "星期一 (xīngqīyī) - Thứ 2\n日期 (rìqī) - Ngày tháng"},
+            {"char": "几", "pinyin": "jǐ", "meaning": "Mấy, vài", "compounds": "星期几 (xīngqī jǐ) - Thứ mấy\n几个 (jǐ gè) - Mấy cái"},
+            {"char": "岁", "pinyin": "suì", "meaning": "Tuổi", "compounds": "二十岁 (èrshí suì) - 20 tuổi\n几岁 (jǐ suì) - Mấy tuổi"}
         ]
     }
 
@@ -197,42 +202,7 @@ def get_quiz_questions():
 # -----------------------------------------------------------------------------
 # HELPER FUNCTIONS
 # -----------------------------------------------------------------------------
-def render_audio_btn(text_to_speak, label="🔊 Nghe Audio"):
-    clean_text = text_to_speak.replace("'", "\\'")
-    html_code = f"""
-    <button onclick="speakZH('{clean_text}')" style="
-        background-color: #fff1f2;
-        color: #e11d48;
-        border: 1px solid #fecdd3;
-        padding: 6px 14px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 13px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;">
-        {label}
-    </button>
-    <script>
-    function speakZH(text) {{
-        if ('speechSynthesis' in window) {{
-            window.speechSynthesis.cancel();
-            var msg = new SpeechSynthesisUtterance(text);
-            msg.lang = 'zh-CN';
-            msg.rate = 0.85;
-            window.speechSynthesis.speak(msg);
-        }}
-    }}
-    </script>
-    """
-    components.html(html_code, height=42)
-
 def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_str):
-    """
-    Generates a Mobile-Optimized HanziWriter Component with an Auto-Height Container (850px)
-    and touch-friendly Quiz Mode feedback layout.
-    """
     html_code = f"""
     <!DOCTYPE html>
     <html lang="vi">
@@ -432,7 +402,6 @@ def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_s
             var writer = null;
             var isOutlineVisible = true;
 
-            // Initialize HanziWriter Engine
             function initWriter() {{
                 document.getElementById('target-holder').innerHTML = '';
                 writer = HanziWriter.create('target-holder', charTarget, {{
@@ -513,7 +482,6 @@ def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_s
     </body>
     </html>
     """
-    # High height (820px) ensures full mobile visibility without clipping controls
     components.html(html_code, height=820, scrolling=False)
 
 
@@ -523,17 +491,18 @@ def render_mobile_hanzi_writer(char_symbol, pinyin_str, meaning_str, compounds_s
 st.markdown("""
 <div class="main-header">
     <h1>🇨🇳 App Học Tiếng Trung Ehou Pro</h1>
-    <p>Tối ưu giao diện Mobile & Laptop - Tập viết bút thuận, cẩm nang 7 bài & trắc nghiệm 53 câu</p>
+    <p>Tối ưu giao diện Mobile & Laptop - Tập viết, Từ vựng, Gia sư AI & Trắc nghiệm</p>
 </div>
 """, unsafe_allow_html=True)
 
 menu = st.sidebar.radio(
     "📌 Lựa chọn chức năng:",
     [
-        "✍️ Tập Viết Bút Thuận (HanziWriter)", 
-        "📖 Cẩm Nang Lý Thuyết (Bài 1-7)", 
+        "✍️ Tập Viết Bút Thuận", 
+        "📖 Cẩm Nang Lý Thuyết", 
         "🗂️ Tổng Ôn Từ Vựng Nhanh",
-        "📝 Luyện Tập Trắc Nghiệm (53 câu)"
+        "📝 Luyện Tập Trắc Nghiệm",
+        "🤖 Gia Sư AI (Groq)"
     ]
 )
 
@@ -543,7 +512,7 @@ st.sidebar.info("📱 **Mẹo Mobile:**\nNếu đang mở trên điện thoại,
 # -----------------------------------------------------------------------------
 # TAB 1: HANZIWRITER WRITING PRACTICE
 # -----------------------------------------------------------------------------
-if menu == "✍️ Tập Viết Bút Thuận (HanziWriter)":
+if menu == "✍️ Tập Viết Bút Thuận":
     st.header("✍️ Luyện Viết Bút Thuận Chữ Hán")
     
     vocab_dict = get_writing_vocab()
@@ -560,10 +529,8 @@ if menu == "✍️ Tập Viết Bút Thuận (HanziWriter)":
     with col_sel2:
         selected_char_str = st.selectbox("🔤 Chọn từ luyện viết:", char_options)
         
-    # Custom Character Search Option
     custom_char = st.text_input("🔍 Hoặc gõ chữ Hán bất kỳ để tập viết:", placeholder="Ví dụ: 学, 汉, 您, 喜...")
     
-    # Determine target character
     if custom_char.strip():
         target_char = custom_char.strip()[0]
         target_pinyin = "Tự chọn"
@@ -575,15 +542,14 @@ if menu == "✍️ Tập Viết Bút Thuận (HanziWriter)":
         target_char = char_info["char"]
         target_pinyin = char_info["pinyin"]
         target_meaning = char_info["meaning"]
-        target_compounds = char_info["compounds"]
+        target_compounds = char_info["compounds"].replace('\n', ' | ')
 
-    # Render Mobile-Friendly HanziWriter Component
     render_mobile_hanzi_writer(target_char, target_pinyin, target_meaning, target_compounds)
 
 # -----------------------------------------------------------------------------
 # TAB 2: COMPREHENSIVE THEORY (LESSONS 1 - 7)
 # -----------------------------------------------------------------------------
-elif menu == "📖 Cẩm Nang Lý Thuyết (Bài 1-7)":
+elif menu == "📖 Cẩm Nang Lý Thuyết":
     st.header("📖 Cẩm Nang Lý Thuyết Chuẩn Ehou (Bài 1 - 7)")
     
     lesson_tab1, lesson_tab2, lesson_tab3, lesson_tab4, lesson_tab5, lesson_tab6, lesson_tab7 = st.tabs([
@@ -693,24 +659,25 @@ elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
     
     search_query = st.text_input("🔍 Tìm kiếm từ vựng (Nhập Hán tự, Pinyin hoặc Nghĩa):", "").strip().lower()
     
-    # Generate HTML Table for lightning-fast rendering of audio buttons
+    # Generate HTML Table with 50% larger Hanzi and nicely formatted compounds
     html_table = """
     <style>
     .vocab-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-family: 'Plus Jakarta Sans', sans-serif; }
-    .vocab-table th, .vocab-table td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+    .vocab-table th, .vocab-table td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; vertical-align: middle; }
     .vocab-table th { background-color: #f8fafc; font-weight: bold; color: #0f172a; font-size: 14px; }
     .vocab-table tr:nth-child(even) { background-color: #f8fafc; }
     .vocab-table tr:hover { background-color: #f1f5f9; }
-    .hanzi-text { font-size: 1.5rem; font-weight: bold; color: #dc2626; }
-    .pinyin-text { font-weight: 600; color: #475569; }
-    .btn-audio { background-color: #fee2e2; color: #e11d48; border: 1px solid #fecdd3; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background-color 0.2s;}
+    .hanzi-text { font-size: 2.25rem; font-weight: bold; color: #dc2626; line-height: 1.2; text-align: center;}
+    .pinyin-text { font-weight: 700; color: #475569; font-size: 1.1rem; }
+    .compound-text { font-size: 13px; color: #334155; line-height: 1.5; white-space: pre-wrap; }
+    .btn-audio { background-color: #fee2e2; color: #e11d48; border: 1px solid #fecdd3; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background-color 0.2s;}
     .btn-audio:hover { background-color: #fecdd3; }
     </style>
     <table class="vocab-table">
         <thead>
             <tr>
                 <th>Bài</th>
-                <th>Chữ Hán</th>
+                <th style="text-align:center;">Chữ Hán</th>
                 <th>Pinyin</th>
                 <th>Ý nghĩa</th>
                 <th>Ví dụ / Từ ghép</th>
@@ -727,7 +694,8 @@ elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
             # Filtering logic
             if (search_query in w['char'].lower() or 
                 search_query in w['pinyin'].lower() or 
-                search_query in w['meaning'].lower()):
+                search_query in w['meaning'].lower() or
+                search_query in w['compounds'].lower()):
                 
                 clean_pinyin = w['char'].replace("'", "\\'") 
                 html_table += f"""
@@ -735,8 +703,8 @@ elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
                     <td><span style="font-size: 12px; color: #64748b; font-weight: bold;">{lesson_short}</span></td>
                     <td class="hanzi-text">{w['char']}</td>
                     <td class="pinyin-text">{w['pinyin']}</td>
-                    <td>{w['meaning']}</td>
-                    <td style="font-size: 13px;">{w['compounds']}</td>
+                    <td><b>{w['meaning']}</b></td>
+                    <td class="compound-text">{w['compounds']}</td>
                     <td><button class="btn-audio" onclick="speakZH('{clean_pinyin}')">🔊 Nghe</button></td>
                 </tr>
                 """
@@ -767,7 +735,7 @@ elif menu == "🗂️ Tổng Ôn Từ Vựng Nhanh":
 # -----------------------------------------------------------------------------
 # TAB 4: QUIZ PRACTICE (53 QUESTIONS)
 # -----------------------------------------------------------------------------
-elif menu == "📝 Luyện Tập Trắc Nghiệm (53 câu)":
+elif menu == "📝 Luyện Tập Trắc Nghiệm":
     st.header("📝 Luyện Tập Trắc Nghiệm Tương Tác")
     
     quiz_questions = get_quiz_questions()
@@ -794,19 +762,16 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm (53 câu)":
         if selected_category == "all" or q["category"] == selected_category
     ]
     
-    # Calculate score
     correct_count = 0
     total_answered = 0
     
     for idx, q in enumerate(filtered_questions):
-        # We need the global index to track answers correctly across filters
         global_idx = quiz_questions.index(q)
         if global_idx in st.session_state.user_answers:
             total_answered += 1
             if st.session_state.user_answers[global_idx] == q["correct"]:
                 correct_count += 1
 
-    # Score Metrics Header
     m1, m2, m3 = st.columns(3)
     m1.metric("Tổng câu hỏi", len(filtered_questions))
     m2.metric("Đã làm", total_answered)
@@ -814,14 +779,28 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm (53 câu)":
     
     st.markdown("---")
     
-    # Render Question Cards
     for idx, q in enumerate(filtered_questions):
         global_idx = quiz_questions.index(q)
         st.markdown(f"#### Câu {idx + 1}: {q['question']}")
         
-        # Render audio button if audio text exists
         if "audioText" in q and q["audioText"]:
-            render_audio_btn(q["audioText"], label=f"🔊 Nghe File Audio ('{q['audioText']}')")
+            # Inline audio generation
+            clean_text = q["audioText"].replace("'", "\\'")
+            audio_html = f"""
+            <button onclick="speakZH('{clean_text}')" style="background-color: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 6px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">🔊 Nghe Audio ('{q['audioText']}')</button>
+            <script>
+            function speakZH(text) {{
+                if ('speechSynthesis' in window) {{
+                    window.speechSynthesis.cancel();
+                    var msg = new SpeechSynthesisUtterance(text);
+                    msg.lang = 'zh-CN';
+                    msg.rate = 0.85;
+                    window.speechSynthesis.speak(msg);
+                }}
+            }}
+            </script>
+            """
+            components.html(audio_html, height=40)
             
         selected_option = st.radio(
             "Chọn đáp án của bạn:",
@@ -843,7 +822,54 @@ elif menu == "📝 Luyện Tập Trắc Nghiệm (53 câu)":
             
         st.markdown("---")
 
-    # Reset Quiz Button
     if st.button("🔄 Làm lại tất cả bài thi"):
         st.session_state.user_answers = {}
         st.rerun()
+
+# -----------------------------------------------------------------------------
+# TAB 5: AI TUTOR (GROQ API)
+# -----------------------------------------------------------------------------
+elif menu == "🤖 Gia Sư AI (Groq)":
+    st.header("🤖 Gia Sư AI Tiếng Trung")
+    st.markdown("Hỏi bất cứ điều gì về tiếng Trung, ngữ pháp, từ vựng, văn hóa... Gia sư AI sẽ trả lời bạn ngay lập tức!")
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = [
+            {"role": "system", "content": "Bạn là một gia sư tiếng Trung thông minh, tận tâm và kiên nhẫn. Chuyên môn của bạn là hỗ trợ học sinh Việt Nam học tiếng Trung sơ cấp (bài 1 đến bài 7 giáo trình tiếng Trung). Khi học sinh hỏi về từ vựng hay ngữ pháp, hãy giải thích rõ ràng, ngắn gọn, luôn cung cấp phiên âm Pinyin, âm Hán Việt (nếu cần) và ví dụ minh họa dễ hiểu."}
+        ]
+
+    # Display chat history
+    for msg in st.session_state.messages:
+        if msg["role"] != "system":
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+    # Chat Input
+    if prompt := st.chat_input("Nhập câu hỏi của bạn vào đây (VD: Phân biệt 认识 và 知道)..."):
+        # Append user message to state
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        # Display user message
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # Call Groq API and stream response
+        with st.chat_message("assistant"):
+            try:
+                # Initialize Groq client with the provided API key
+                client = Groq(api_key="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")
+                
+                stream = client.chat.completions.create(
+                    model="llama3-70b-8192", # Excellent model for instruction
+                    messages=st.session_state.messages,
+                    stream=True,
+                )
+                
+                # Streamlit 1.30+ streaming response
+                response = st.write_stream((chunk.choices[0].delta.content or "") for chunk in stream)
+                
+                # Append assistant message to state
+                st.session_state.messages.append({"role": "assistant", "content": response})
+                
+            except Exception as e:
+                st.error(f"Lỗi kết nối tới Gia sư AI: {e}\nVui lòng kiểm tra lại kết nối mạng hoặc API Key.")
